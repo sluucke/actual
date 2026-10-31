@@ -474,5 +474,5 @@ export function makeAsNonChildTransactions(
 export function duplicateTransaction(
   transaction: TransactionEntity,
 ): TransactionEntity[] {
-  return [{ ...transaction, id: uuidv4() }];
+  return realizeTempTransactions(ungroupTransaction(transaction));
 }
