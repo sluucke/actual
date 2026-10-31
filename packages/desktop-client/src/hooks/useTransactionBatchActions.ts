@@ -5,8 +5,7 @@ import * as monthUtils from '@actual-app/core/shared/months';
 import { q } from '@actual-app/core/shared/query';
 import {
   deleteTransaction,
-  realizeTempTransactions,
-  ungroupTransaction,
+  duplicateTransaction,
   ungroupTransactions,
   updateTransaction,
 } from '@actual-app/core/shared/transactions';
@@ -295,18 +294,7 @@ export function useTransactionBatchActions() {
       const transactions = data as TransactionEntity[];
 
       const changes = {
-        added: transactions.reduce(
-          (newTransactions: TransactionEntity[], trans: TransactionEntity) => {
-            return newTransactions.concat(
-              realizeTempTransactions(ungroupTransaction(trans)).map(t => ({
-                ...t,
-                cleared: false,
-                reconciled: false,
-              })),
-            );
-          },
-          [],
-        ),
+        added: transactions.flatMap(trans => duplicateTransaction(trans)),
       };
 
       await send('transactions-batch-update', changes);
