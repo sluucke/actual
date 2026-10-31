@@ -444,4 +444,33 @@ describe('duplicateTransaction', () => {
     expect(copy.payee).toBe('payee-1');
     expect(copy.notes).toBe('groceries');
   });
+
+  test('copies every split line with new ids linked to the new parent', () => {
+    // Arrange
+    const parent = makeTransaction({
+      id: 'parent',
+      amount: -5000,
+      is_parent: true,
+    });
+    const original = {
+      ...parent,
+      subtransactions: [
+        makeChild(parent, { id: 'child-1', amount: -3000 }),
+        makeChild(parent, { id: 'child-2', amount: -2000 }),
+      ],
+    };
+
+    // Act
+    const [newParent, ...newChildren] = duplicateTransaction(original);
+
+    // Assert
+    expect(newParent.id).not.toBe('parent');
+    expect(newParent.amount).toBe(-5000);
+    expect(newChildren).toHaveLength(2);
+    expect(newChildren.map(c => c.amount)).toEqual([-3000, -2000]);
+    for (const child of newChildren) {
+      expect(['child-1', 'child-2']).not.toContain(child.id);
+      expect(child.parent_id).toBe(newParent.id);
+    }
+  });
 });
