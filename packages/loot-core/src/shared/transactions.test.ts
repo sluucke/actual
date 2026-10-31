@@ -473,4 +473,26 @@ describe('duplicateTransaction', () => {
       expect(child.parent_id).toBe(newParent.id);
     }
   });
+
+  test('copies are neither cleared nor reconciled', () => {
+    // Arrange
+    const parent = makeTransaction({
+      is_parent: true,
+      cleared: true,
+      reconciled: true,
+    });
+    const original = {
+      ...parent,
+      subtransactions: [makeChild(parent, { cleared: true, reconciled: true })],
+    };
+
+    // Act
+    const copies = duplicateTransaction(original);
+
+    // Assert
+    for (const copy of copies) {
+      expect(copy.cleared).toBe(false);
+      expect(copy.reconciled).toBe(false);
+    }
+  });
 });
