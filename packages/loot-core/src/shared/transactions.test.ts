@@ -6,6 +6,7 @@ import type { TransactionEntity } from '#types/models';
 import {
   addSplitTransaction,
   deleteTransaction,
+  duplicateTransaction,
   makeAsNonChildTransactions,
   makeChild,
   makeEmptySplitSubtransactions,
@@ -420,5 +421,27 @@ describe('Transactions', () => {
     // The new child rows are inserted, and every one must carry the account.
     expect(diff.added).toHaveLength(2);
     expect(diff.added.every(t => t.account === 'acc-id-1')).toBe(true);
+  });
+});
+
+// Issue #9325: duplicating a transaction must not copy bank and schedule links
+describe('duplicateTransaction', () => {
+  test('returns a copy with a new id and the same data', () => {
+    // Arrange
+    const original = makeTransaction({
+      id: 'original',
+      amount: -1500,
+      payee: 'payee-1',
+      notes: 'groceries',
+    });
+
+    // Act
+    const [copy] = duplicateTransaction(original);
+
+    // Assert
+    expect(copy.id).not.toBe('original');
+    expect(copy.amount).toBe(-1500);
+    expect(copy.payee).toBe('payee-1');
+    expect(copy.notes).toBe('groceries');
   });
 });
