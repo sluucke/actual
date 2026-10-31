@@ -470,3 +470,9 @@ export function makeAsNonChildTransactions(
     deleted: [...(deleteParentTransaction ? [updatedParentTransaction] : [])],
   };
 }
+
+export function duplicateTransaction(
+  transaction: TransactionEntity,
+): TransactionEntity[] {
+  return [{ ...transaction, id: uuidv4() }];
+}
