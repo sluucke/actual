@@ -474,5 +474,9 @@ export function makeAsNonChildTransactions(
 export function duplicateTransaction(
   transaction: TransactionEntity,
 ): TransactionEntity[] {
-  return realizeTempTransactions(ungroupTransaction(transaction));
+  return realizeTempTransactions(ungroupTransaction(transaction)).map(t => ({
+    ...t,
+    cleared: false,
+    reconciled: false,
+  }));
 }
