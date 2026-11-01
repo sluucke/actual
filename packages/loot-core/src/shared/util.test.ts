@@ -97,6 +97,33 @@ describe('utility functions', () => {
     expect(looselyParseAmount('1.500 €')).toBe(1500);
   });
 
+  test('TDD-C1: looseParseAmount treats a trailing minus as negative', () => {
+    // Arrange
+    const amount = '3.45-';
+    // Act
+    const result = looselyParseAmount(amount);
+    // Assert
+    expect(result).toBe(-3.45);
+  });
+
+  test('TDD-C2: looseParseAmount treats a trailing minus as negative with thousands separators', () => {
+    // Arrange
+    const amount = '1.234,56-';
+    // Act
+    const result = looselyParseAmount(amount);
+    // Assert
+    expect(result).toBe(-1234.56);
+  });
+
+  test('TDD-C3: looseParseAmount treats a trailing minus followed by a currency as negative', () => {
+    // Arrange
+    const amount = '3.45- €';
+    // Act
+    const result = looselyParseAmount(amount);
+    // Assert
+    expect(result).toBe(-3.45);
+  });
+
   test('number formatting works with comma-dot format', () => {
     setNumberFormat({ format: 'comma-dot', hideFraction: false });
     let formatter = getNumberFormat().formatter;

@@ -569,6 +569,12 @@ export function looselyParseAmount(amount: string) {
   }
 
   amount = amount.trim();
+  // Move a trailing minus to the front (e.g. "1.234,56-" or "3.45- €"),
+  // keeping any currency suffix after it.
+  const trailingMinus = amount.match(/^(.*\d)\s*-(\D*)$/);
+  if (trailingMinus) {
+    amount = '-' + trailingMinus[1] + trailingMinus[2];
+  }
 
   if (amount.startsWith('(') && amount.endsWith(')')) {
     // Remove Unicode minus inside parentheses before converting to ASCII minus
