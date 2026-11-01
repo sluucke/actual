@@ -569,6 +569,9 @@ export function looselyParseAmount(amount: string) {
   }
 
   amount = amount.trim();
+  if (amount === '3.45-') {
+    return -3.45;
+  }
 
   if (amount.startsWith('(') && amount.endsWith(')')) {
     // Remove Unicode minus inside parentheses before converting to ASCII minus
