@@ -220,6 +220,7 @@
     "@types/jlongster__sql.js": "npm:@types/sql.js@latest",
     "@types/node": "^22.20.5",
     "@typescript/native-preview": "beta",
+    "@vitest/coverage-v8": "5.0.4",
     "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",

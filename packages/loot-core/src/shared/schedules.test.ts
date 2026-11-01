@@ -5,6 +5,7 @@ import type { RuleConditionEntity, ScheduleEntity } from '#types/models';
 import * as monthUtils from './months';
 import {
   computeSchedulePreviewTransactions,
+  getDateWithSkippedWeekend,
   getHasTransactionsQuery,
   getNextDate,
   getNextDateAfter,
@@ -900,6 +901,152 @@ describe('schedules', () => {
       );
 
       expect(result).toEqual(['2020-12-07']);
+    });
+  });
+
+  describe('getDateWithSkippedWeekend', () => {
+    // Datas ao meio-dia local, como recomenda months.ts, para que
+    // fuso e horário de verão nunca mudem o dia.
+    function noon(year: number, month: number, day: number) {
+      return new Date(year, month - 1, day, 12);
+    }
+
+    function skip(date: Date, mode: 'after' | 'before') {
+      return monthUtils.dayFromDate(getDateWithSkippedWeekend(date, mode));
+    }
+
+    // Modo fora do domínio previsto (classe inválida 6)
+    const invalidMode = 'xyz' as unknown as 'after' | 'before';
+
+    // --- Particionamento de equivalência ---
+
+    it('CT01: keeps a weekday unchanged in after mode', () => {
+      // Arrange
+      const wednesday = noon(2026, 10, 28);
+      // Act
+      const result = skip(wednesday, 'after');
+      // Assert
+      expect(result).toBe('2026-10-28');
+    });
+
+    it('CT02: moves a Saturday back to Friday in before mode', () => {
+      // Arrange
+      const saturday = noon(2026, 10, 31);
+      // Act
+      const result = skip(saturday, 'before');
+      // Assert
+      expect(result).toBe('2026-10-30');
+    });
+
+    it('CT03: moves a Sunday forward to Monday in after mode', () => {
+      // Arrange
+      const sunday = noon(2026, 11, 1);
+      // Act
+      const result = skip(sunday, 'after');
+      // Assert
+      expect(result).toBe('2026-11-02');
+    });
+
+    it('CT04: rejects an unknown mode on a weekend date', () => {
+      // Arrange
+      const saturday = noon(2026, 10, 31);
+      // Act
+      const act = () => getDateWithSkippedWeekend(saturday, invalidMode);
+      // Assert
+      expect(act).toThrow('Unknown weekend solve mode');
+    });
+
+    // --- Análise de valor-limite ---
+
+    it.each([
+      {
+        id: 'CT05',
+        scenario: 'keeps the last weekday before the weekend',
+        date: noon(2026, 10, 30),
+        mode: 'after' as const,
+        expected: '2026-10-30',
+      },
+      {
+        id: 'CT06',
+        scenario: 'keeps the first weekday after the weekend',
+        date: noon(2026, 11, 2),
+        mode: 'before' as const,
+        expected: '2026-11-02',
+      },
+      {
+        id: 'CT07',
+        scenario: 'moves a Saturday forward into the next month',
+        date: noon(2026, 10, 31),
+        mode: 'after' as const,
+        expected: '2026-11-02',
+      },
+      {
+        id: 'CT08',
+        scenario: 'moves a Sunday back into the previous month',
+        date: noon(2026, 11, 1),
+        mode: 'before' as const,
+        expected: '2026-10-30',
+      },
+      {
+        id: 'CT09',
+        scenario: 'moves a Saturday forward into the next year',
+        date: noon(2022, 12, 31),
+        mode: 'after' as const,
+        expected: '2023-01-02',
+      },
+      {
+        id: 'CT10',
+        scenario: 'moves a Sunday back into the previous year',
+        date: noon(2023, 1, 1),
+        mode: 'before' as const,
+        expected: '2022-12-30',
+      },
+      {
+        id: 'CT11',
+        scenario: 'moves a leap day Saturday forward to Monday',
+        date: noon(2020, 2, 29),
+        mode: 'after' as const,
+        expected: '2020-03-02',
+      },
+      {
+        id: 'CT12',
+        scenario: 'moves a Sunday back across the leap day',
+        date: noon(2020, 3, 1),
+        mode: 'before' as const,
+        expected: '2020-02-28',
+      },
+      {
+        id: 'CT13',
+        scenario: 'keeps a weekday holiday unchanged',
+        date: noon(2026, 12, 25),
+        mode: 'after' as const,
+        expected: '2026-12-25',
+      },
+      {
+        id: 'CT14',
+        scenario: 'moves a Saturday back onto a Friday holiday',
+        date: noon(2027, 1, 2),
+        mode: 'before' as const,
+        expected: '2027-01-01',
+      },
+    ])('$id: $scenario', ({ date, mode, expected }) => {
+      // Act
+      const result = skip(date, mode);
+      // Assert
+      expect(result).toBe(expected);
+    });
+
+    // --- Complemento caixa-branca ---
+
+    // Divergência encontrada: o modo só é validado dentro do ramo de
+    // fim de semana (linha 344); em dia útil, um modo inválido é aceito.
+    it.fails('CT15: rejects an unknown mode on a weekday', () => {
+      // Arrange
+      const wednesday = noon(2026, 10, 28);
+      // Act
+      const act = () => getDateWithSkippedWeekend(wednesday, invalidMode);
+      // Assert
+      expect(act).toThrow('Unknown weekend solve mode');
     });
   });
 });
