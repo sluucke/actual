@@ -244,4 +244,15 @@ describe('formatPayeeName', () => {
       expect(result).not.toContain(iban);
     });
   });
+
+  describe('tdd: IBAN normalization', () => {
+    it('[TDD-01] masks an IBAN written in groups of four with spaces', () => {
+      const trans = makeTransaction('-25.00', {
+        creditorName: CREDITOR,
+        creditorAccount: { iban: 'DE89 3704 0044 0532 0130 00' },
+      });
+
+      expect(formatPayeeName(trans)).toBe(`John Example ${MASKED_IBAN}`);
+    });
+  });
 });
