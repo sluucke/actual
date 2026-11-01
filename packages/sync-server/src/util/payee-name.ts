@@ -2,8 +2,14 @@ import type { Transaction } from '#app-gocardless/gocardless-node.types';
 
 import { title } from './title/index';
 
+// the shortest IBAN in use (Norway) has 15 characters
+const MIN_IBAN_LENGTH = 15;
+
 function formatPayeeIban(iban: string) {
   const compactIban = iban.replace(/\s/g, '');
+  if (compactIban.length < MIN_IBAN_LENGTH) {
+    return undefined;
+  }
   return `(${compactIban.slice(0, 4)} XXX ${compactIban.slice(-4)})`;
 }
 
@@ -40,13 +46,11 @@ export const formatPayeeName = (trans: Transaction) => {
     nameParts.push(title(name));
   }
 
-  if (
-    typeof account === 'object' &&
-    account &&
-    account.iban &&
-    account.iban.replace(/\s/g, '').length >= 15
-  ) {
-    nameParts.push(formatPayeeIban(account.iban));
+  if (typeof account === 'object' && account && account.iban) {
+    const maskedIban = formatPayeeIban(account.iban);
+    if (maskedIban) {
+      nameParts.push(maskedIban);
+    }
   }
 
   return nameParts.join(' ');
