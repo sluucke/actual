@@ -124,7 +124,6 @@ describe('utility functions', () => {
     expect(result).toBe(-3.45);
   });
 
-
   test('number formatting works with comma-dot format', () => {
     setNumberFormat({ format: 'comma-dot', hideFraction: false });
     let formatter = getNumberFormat().formatter;
