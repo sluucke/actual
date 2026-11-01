@@ -3,7 +3,8 @@ import type { Transaction } from '#app-gocardless/gocardless-node.types';
 import { title } from './title/index';
 
 function formatPayeeIban(iban: string) {
-  return '(' + iban.slice(0, 4) + ' XXX ' + iban.slice(-4) + ')';
+  const compactIban = iban.replace(/\s/g, '');
+  return `(${compactIban.slice(0, 4)} XXX ${compactIban.slice(-4)})`;
 }
 
 export const formatPayeeName = (trans: Transaction) => {
@@ -40,7 +41,7 @@ export const formatPayeeName = (trans: Transaction) => {
   }
 
   if (typeof account === 'object' && account && account.iban) {
-    nameParts.push(formatPayeeIban(account.iban.replace(/\s/g, '')));
+    nameParts.push(formatPayeeIban(account.iban));
   }
 
   return nameParts.join(' ');
