@@ -40,7 +40,7 @@ export const formatPayeeName = (trans: Transaction) => {
   }
 
   if (typeof account === 'object' && account && account.iban) {
-    nameParts.push(formatPayeeIban(account.iban));
+    nameParts.push(formatPayeeIban(account.iban.replace(/\s/g, '')));
   }
 
   return nameParts.join(' ');
