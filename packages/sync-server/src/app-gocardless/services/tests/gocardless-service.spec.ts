@@ -494,7 +494,7 @@ describe('goCardlessService', () => {
                 },
                 "debtorName": "string",
                 "notes": "",
-                "payeeName": "String (stri XXX ring)",
+                "payeeName": "String",
                 "remittanceInformationStructuredArrayString": undefined,
                 "remittanceInformationUnstructuredArrayString": undefined,
                 "transactionAmount": {

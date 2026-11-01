@@ -40,7 +40,12 @@ export const formatPayeeName = (trans: Transaction) => {
     nameParts.push(title(name));
   }
 
-  if (typeof account === 'object' && account && account.iban) {
+  if (
+    typeof account === 'object' &&
+    account &&
+    account.iban &&
+    account.iban.replace(/\s/g, '').length >= 15
+  ) {
     nameParts.push(formatPayeeIban(account.iban));
   }
 
