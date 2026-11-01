@@ -275,4 +275,38 @@ describe('formatPayeeName', () => {
       expect(formatPayeeName(trans)).toBe('John Example');
     });
   });
+
+  describe('tdd: blank names', () => {
+    it.each([
+      {
+        id: 'TDD-04',
+        side: 'debtor',
+        amount: '25.00',
+        overrides: {
+          debtorName: '   ',
+          creditorName: CREDITOR,
+          creditorAccount: { iban: IBAN },
+        },
+        expected: `John Example ${MASKED_IBAN}`,
+      },
+      {
+        id: 'TDD-05',
+        side: 'creditor',
+        amount: '-25.00',
+        overrides: {
+          creditorName: '   ',
+          debtorName: DEBTOR,
+          debtorAccount: { iban: IBAN },
+        },
+        expected: `Chris Example ${MASKED_IBAN}`,
+      },
+    ])(
+      '[$id] treats a $side name with only spaces as missing',
+      ({ amount, overrides, expected }) => {
+        const trans = makeTransaction(amount, overrides);
+
+        expect(formatPayeeName(trans)).toBe(expected);
+      },
+    );
+  });
 });
