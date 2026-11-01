@@ -254,5 +254,25 @@ describe('formatPayeeName', () => {
 
       expect(formatPayeeName(trans)).toBe(`John Example ${MASKED_IBAN}`);
     });
+
+    it.each([
+      {
+        id: 'TDD-02',
+        scenario: 'one character below the shortest IBAN',
+        iban: 'NO938601111794',
+      },
+      {
+        id: 'TDD-03',
+        scenario: 'that the mask would print whole',
+        iban: 'DE891234',
+      },
+    ])('[$id] leaves out a value $scenario', ({ iban }) => {
+      const trans = makeTransaction('-25.00', {
+        creditorName: CREDITOR,
+        creditorAccount: { iban },
+      });
+
+      expect(formatPayeeName(trans)).toBe('John Example');
+    });
   });
 });
