@@ -115,6 +115,16 @@ describe('utility functions', () => {
     expect(result).toBe(-1234.56);
   });
 
+  test('TDD-C3: looseParseAmount treats a trailing minus followed by a currency as negative', () => {
+    // Arrange
+    const amount = '3.45- €';
+    // Act
+    const result = looselyParseAmount(amount);
+    // Assert
+    expect(result).toBe(-3.45);
+  });
+
+
   test('number formatting works with comma-dot format', () => {
     setNumberFormat({ format: 'comma-dot', hideFraction: false });
     let formatter = getNumberFormat().formatter;
