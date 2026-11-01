@@ -106,6 +106,15 @@ describe('utility functions', () => {
     expect(result).toBe(-3.45);
   });
 
+  test('TDD-C2: looseParseAmount treats a trailing minus as negative with thousands separators', () => {
+    // Arrange
+    const amount = '1.234,56-';
+    // Act
+    const result = looselyParseAmount(amount);
+    // Assert
+    expect(result).toBe(-1234.56);
+  });
+
   test('number formatting works with comma-dot format', () => {
     setNumberFormat({ format: 'comma-dot', hideFraction: false });
     let formatter = getNumberFormat().formatter;
