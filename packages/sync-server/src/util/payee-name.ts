@@ -21,10 +21,10 @@ export const formatPayeeName = (trans: Transaction) => {
   let name;
   let account;
   if (amount > 0 || Object.is(amount, 0)) {
-    name = trans.debtorName;
+    name = trans.debtorName?.trim() ? trans.debtorName : undefined;
     account = trans.debtorAccount;
   } else {
-    name = trans.creditorName;
+    name = trans.creditorName?.trim() ? trans.creditorName : undefined;
     account = trans.creditorAccount;
   }
 
@@ -36,8 +36,8 @@ export const formatPayeeName = (trans: Transaction) => {
 
   name =
     name ||
-    trans.debtorName ||
-    trans.creditorName ||
+    (trans.debtorName?.trim() ? trans.debtorName : undefined) ||
+    (trans.creditorName?.trim() ? trans.creditorName : undefined) ||
     trans.remittanceInformationUnstructured ||
     (trans.remittanceInformationUnstructuredArray || []).join(', ') ||
     trans.additionalInformation;
