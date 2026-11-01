@@ -569,8 +569,8 @@ export function looselyParseAmount(amount: string) {
   }
 
   amount = amount.trim();
-  if (amount === '3.45-') {
-    return -3.45;
+  if (amount.endsWith('-')) {
+    amount = '-' + amount.slice(0, -1).trim();
   }
 
   if (amount.startsWith('(') && amount.endsWith(')')) {
