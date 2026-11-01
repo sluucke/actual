@@ -13,18 +13,24 @@ function formatPayeeIban(iban: string) {
   return `(${compactIban.slice(0, 4)} XXX ${compactIban.slice(-4)})`;
 }
 
+function nonBlank(value: string | undefined) {
+  return value?.trim() ? value : undefined;
+}
+
 export const formatPayeeName = (trans: Transaction) => {
   const amount = Number(trans.transactionAmount.amount);
   const nameParts = [];
+  const debtorName = nonBlank(trans.debtorName);
+  const creditorName = nonBlank(trans.creditorName);
 
   // get the correct name and account fields for the transaction amount
   let name;
   let account;
   if (amount > 0 || Object.is(amount, 0)) {
-    name = trans.debtorName?.trim() ? trans.debtorName : undefined;
+    name = debtorName;
     account = trans.debtorAccount;
   } else {
-    name = trans.creditorName?.trim() ? trans.creditorName : undefined;
+    name = creditorName;
     account = trans.creditorAccount;
   }
 
@@ -36,8 +42,8 @@ export const formatPayeeName = (trans: Transaction) => {
 
   name =
     name ||
-    (trans.debtorName?.trim() ? trans.debtorName : undefined) ||
-    (trans.creditorName?.trim() ? trans.creditorName : undefined) ||
+    debtorName ||
+    creditorName ||
     trans.remittanceInformationUnstructured ||
     (trans.remittanceInformationUnstructuredArray || []).join(', ') ||
     trans.additionalInformation;
